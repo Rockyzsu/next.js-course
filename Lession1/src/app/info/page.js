@@ -1,5 +1,11 @@
+import React from 'react';
+import UserList from './_components/List'
+
 function showInfoPage() {
-  return (<h1>Hello this is show info</h1>)
+  return (<>
+  <UserList />
+  </>
+  )
 
 }
 
