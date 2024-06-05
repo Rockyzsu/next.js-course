@@ -4,8 +4,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'This is tile page  !',
-  description: 'By rocky test,test case',
+  title: 'Next.js 全栈应用开发 - 从零开始到部署',
+  description: 'next.js node.js react',
 }
 
 export default function RootLayout({ children }) {
