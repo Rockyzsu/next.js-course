@@ -15,4 +15,7 @@ module.exports = {
     },
   },
   plugins: [],
+  corePlugins:{
+    preflight: false // 禁止覆盖antd样式
+  }
 }
