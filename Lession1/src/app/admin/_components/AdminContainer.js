@@ -47,9 +47,9 @@ function AdminContainer({ children }) {
                 label: "用户",
               },
               {
-                key: "3",
+                key: "/admin/articles",
                 icon: <UploadOutlined />,
-                label: "积分",
+                label: "文章",
               },
             ]}
           />
