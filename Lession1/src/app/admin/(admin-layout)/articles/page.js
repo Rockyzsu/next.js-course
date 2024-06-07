@@ -1,12 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Input, Table, Modal, Space } from "antd";
-import { SelectOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  SelectOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 
 function articlesPage() {
   const [articleList, setArticleList] = useState([]);
   const [open, setOpen] = useState(false);
-
+  const [query, setQuery] = useState({});
+  const [currentId, setCurrentId] = useState("");
   const [myform] = Form.useForm();
 
   useEffect(() => {
@@ -15,7 +21,7 @@ function articlesPage() {
     })
       .then((res) => res.json())
       .then((res) => setArticleList(res.data));
-  }, []);
+  }, [query]);
 
   return (
     <Card
@@ -63,16 +69,27 @@ function articlesPage() {
 
           {
             title: "操作",
-            render(v,r) {
+            render(v, r) {
               return (
                 <Space>
-                  <Button size="small" icon={<EditOutlined />} type="primary" onClick={()=>{
-                    setOpen(true);
-                    console.log('-----')
-                    console.log(r)
-                    myform.setFieldsValue(r)
-                  }}/>
-                  <Button size="small" icon={<DeleteOutlined />} type="primary" danger/>
+                  <Button
+                    size="small"
+                    icon={<EditOutlined />}
+                    type="primary"
+                    onClick={() => {
+                      setOpen(true);
+                      console.log("-----");
+                      console.log(r);
+                      myform.setFieldsValue(r);
+                      setCurrentId(r.id);
+                    }}
+                  />
+                  <Button
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    type="primary"
+                    danger
+                  />
                 </Space>
               );
             },
@@ -82,29 +99,59 @@ function articlesPage() {
       <Modal
         title="编辑"
         open={open}
+        destroyOnClose={true}
+        maskClosable={false}
         onCancel={(v) => {
           setOpen(false);
         }}
         onOk={(v) => {
           myform.submit();
         }}
+
       >
         <Form
+          preserve={false}
           layout="vertical"
           form={myform}
           onFinish={(v) => {
             setOpen(false);
             console.log(v);
-            fetch("/api/admin/articles", {
-              method: "POST",
-              body: JSON.stringify(v),
-            });
+            if (currentId != "") {
+              let post_data = { ...v, id: currentId };
+              fetch("/api/admin/articles/update", {
+                method: "POST",
+                body: JSON.stringify(post_data),
+              }).then((res) => {
+                // setQuery({});
+                setQuery({})
+                setCurrentId("");
+              });
+            } else {
+              fetch("/api/admin/articles", {
+                method: "POST",
+                body: JSON.stringify(v),
+              }).then((res) => {
+                // setQuery({});
+                setQuery({})
+                setCurrentId("");
+              });
+            }
+            // setQuery({})
+            // setCurrentId("");
           }}
         >
-          <Form.Item label="标题" name="title" rules={[{ required: true, message: "标题不能为空" }]}>
+          <Form.Item
+            label="标题"
+            name="title"
+            rules={[{ required: true, message: "标题不能为空" }]}
+          >
             <Input placeholder="请输入标题" />
           </Form.Item>
-          <Form.Item label="内容" name="content" rules={[{ required: true, message: "内容不能为空" }]}>
+          <Form.Item
+            label="内容"
+            name="content"
+            rules={[{ required: true, message: "内容不能为空" }]}
+          >
             <Input placeholder="请输入内容" />
           </Form.Item>
         </Form>
