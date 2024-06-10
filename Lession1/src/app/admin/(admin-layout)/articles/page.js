@@ -1,12 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button, Card, Form, Input, Table, Modal, Space } from "antd";
-import {
-  SelectOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { Button, Card, Form, Input, Table, Modal, Space, Popconfirm } from "antd";
+import { SelectOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 function articlesPage() {
   const [articleList, setArticleList] = useState([]);
@@ -14,6 +9,8 @@ function articlesPage() {
   const [query, setQuery] = useState({});
   const [currentId, setCurrentId] = useState("");
   const [myform] = Form.useForm();
+  
+  console.log('inti form');
 
   useEffect(() => {
     fetch("/api/admin/articles", {
@@ -22,6 +19,12 @@ function articlesPage() {
       .then((res) => res.json())
       .then((res) => setArticleList(res.data));
   }, [query]);
+
+  useEffect(() => {
+    if (!open) {
+      setCurrentId("");
+    }
+  }, [open]);
 
   return (
     <Card
@@ -33,6 +36,8 @@ function articlesPage() {
             type="primary"
             onClick={(v) => {
               setOpen(true);
+              console.log('new article');
+              myform.setFieldsValue({title:'',content:''})
             }}
           />
         </>
@@ -80,16 +85,23 @@ function articlesPage() {
                       setOpen(true);
                       console.log("-----");
                       console.log(r);
-                      myform.setFieldsValue(r);
+                      console.log(r.id);
                       setCurrentId(r.id);
+                      myform.setFieldsValue(r);
+
                     }}
                   />
-                  <Button
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    type="primary"
-                    danger
-                  />
+
+                  <Popconfirm
+                    onConfirm={async () => {
+                      const result = await fetch("/api/admin/articles/update/" + currentId, { method: "DELETE" }).then((res) => res.json());
+                      console.log(result);
+                      setQuery({});
+                    }}
+                    title="确认是否删除"
+                  >
+                    <Button size="small" icon={<DeleteOutlined />} type="primary" danger />
+                  </Popconfirm>
                 </Space>
               );
             },
@@ -99,7 +111,7 @@ function articlesPage() {
       <Modal
         title="编辑"
         open={open}
-        destroyOnClose={true}
+        destroyOnClose={false}
         maskClosable={false}
         onCancel={(v) => {
           setOpen(false);
@@ -107,51 +119,34 @@ function articlesPage() {
         onOk={(v) => {
           myform.submit();
         }}
-
       >
         <Form
           preserve={false}
           layout="vertical"
           form={myform}
-          onFinish={(v) => {
+          onFinish={async (v) => {
             setOpen(false);
             console.log(v);
-            if (currentId != "") {
+            if (currentId) {
               let post_data = { ...v, id: currentId };
-              fetch("/api/admin/articles/update", {
+              await fetch("/api/admin/articles/update", {
                 method: "POST",
                 body: JSON.stringify(post_data),
-              }).then((res) => {
-                // setQuery({});
-                setQuery({})
-                setCurrentId("");
-              });
+              }).then((res) => {});
             } else {
-              fetch("/api/admin/articles", {
+              await fetch("/api/admin/articles", {
                 method: "POST",
                 body: JSON.stringify(v),
-              }).then((res) => {
-                // setQuery({});
-                setQuery({})
-                setCurrentId("");
-              });
+              }).then((res) => {});
             }
-            // setQuery({})
-            // setCurrentId("");
+            setOpen(false);
+            setQuery({});
           }}
         >
-          <Form.Item
-            label="标题"
-            name="title"
-            rules={[{ required: true, message: "标题不能为空" }]}
-          >
+          <Form.Item label="标题" name="title" rules={[{ required: true, message: "标题不能为空" }]}>
             <Input placeholder="请输入标题" />
           </Form.Item>
-          <Form.Item
-            label="内容"
-            name="content"
-            rules={[{ required: true, message: "内容不能为空" }]}
-          >
+          <Form.Item label="内容" name="content" rules={[{ required: true, message: "内容不能为空" }]}>
             <Input placeholder="请输入内容" />
           </Form.Item>
         </Form>

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { articles } from "../../db/model";
 
-const GET = async () => {
-  const data = await articles.findAll({});
+const GET = async (req) => {
+  const page = Number(req.nextUrl.searchParams.get("page") || 1);
+  const pageSize = Number(req.nextUrl.searchParams.get("pageSize") || 10);
+  const data = await articles.findAll({ offset: (page - 1) * pageSize, limit: pageSize });
   console.log("===========");
   // console.log(data);
   const convert_data = data.map((item) => ({ id: item.id, title: item.title, content: item.content, created_at: item.created_at }));
