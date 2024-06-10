@@ -79,7 +79,7 @@ function articlesPage() {
                     onClick={() => {
                       setOpen(true);
                       console.log("-----");
-                      console.log(r);
+                      // console.log(r);
                       myform.setFieldsValue(r);
                       setCurrentId(r.id);
                     }}
