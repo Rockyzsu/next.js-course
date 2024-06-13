@@ -3,10 +3,17 @@ import { articles } from "../../../../db/model";
 
 const DELETE = async (req, { params }) => {
   const { id } = params;
+  console.log("delete ....");
+  console.log(id);
+
   const result = await articles.destroy({ where: { id: id } });
   console.log("result ----------");
   console.log(result);
-  return NextResponse.json({ code: 200, msg: "success delete article", result: JSON.stringify(result) });
+  return NextResponse.json({
+    code: 200,
+    msg: "success delete article",
+    result: JSON.stringify(result),
+  });
 };
 
 export { DELETE };

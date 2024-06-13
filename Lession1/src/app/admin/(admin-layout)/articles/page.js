@@ -9,6 +9,7 @@ function articlesPage() {
   const [query, setQuery] = useState({});
   const [currentId, setCurrentId] = useState("");
   const [myform] = Form.useForm();
+  const [total,setTotal] = useState(0)
   
   console.log('inti form');
 
@@ -17,7 +18,7 @@ function articlesPage() {
       method: "GET",
     })
       .then((res) => res.json())
-      .then((res) => setArticleList(res.data));
+      .then((res) => {setArticleList(res.data);setTotal(res.total)}); 
   }, [query]);
 
   useEffect(() => {
@@ -93,8 +94,9 @@ function articlesPage() {
                   />
 
                   <Popconfirm
-                    onConfirm={async () => {
-                      const result = await fetch("/api/admin/articles/update/" + currentId, { method: "DELETE" }).then((res) => res.json());
+                    onConfirm={async() => {
+                      console.log(r.id);
+                      const result = await fetch("/api/admin/articles/update/" + r.id, { method: "DELETE" }).then((res) => res.json());
                       console.log(result);
                       setQuery({});
                     }}
